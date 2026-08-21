@@ -8,8 +8,15 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-const FIRST_SPOT = 3000;
-const LAST_SPOT = 3199;
+const SPOT_RANGES = [
+  [3028, 3039],
+  [3113, 3118],
+  [3183, 3199]
+];
+
+const PARKING_SPOTS = SPOT_RANGES.flatMap(([from, to]) =>
+  Array.from({ length: to - from + 1 }, (_, i) => from + i)
+);
 
 function formatDate(date) {
   return date.toISOString().slice(0, 10);
@@ -187,11 +194,11 @@ function App() {
         {message && <div className="message">{message}</div>}
 
         <div className="stats">
-          <strong>{reservations.length}</strong> / 200 места са заети
+          <strong>{reservations.length}</strong> / {PARKING_SPOTS.length} места са заети
         </div>
 
         <div className="grid">
-          {Array.from({ length: LAST_SPOT - FIRST_SPOT + 1 }, (_, i) => FIRST_SPOT + i).map((spot) => {
+          {PARKING_SPOTS.map((spot) => {
             const reservation = reservationBySpot.get(spot);
             const mine = reservation?.user_id === session.user.id;
 
